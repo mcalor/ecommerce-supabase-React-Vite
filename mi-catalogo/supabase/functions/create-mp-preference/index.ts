@@ -28,9 +28,9 @@ serve(async (req: Request) => {  // <--- Agregamos : Request
         },
       ],
       back_urls: {
-        success: "http://localhost:5173/success",
-        failure: "http://localhost:5173/failure",
-        pending: "http://localhost:5173/pending",
+        success: "http://ecommerce-supabase-react-vite.vercel.app/success",
+        failure: "http://ecommerce-supabase-react-vite.vercel.app/failure",
+        pending: "http://ecommerce-supabase-react-vite.vercel.app/pending",
       },
       // auto_return: "approved",  <-- BORRA O COMENTA ESTA LÍNEA
     };
