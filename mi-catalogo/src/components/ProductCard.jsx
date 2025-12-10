@@ -7,7 +7,11 @@ export default function ProductCard({ product }) {
     <div style={styles.card}>
       {/* Si tienes imágenes reales en la BD, usa product.image_url */}
       <div style={styles.imagePlaceholder}>
-         <img src="https://via.placeholder.com/150" alt={product.name} style={{width:'100%'}}/> 
+        <img 
+            src={product.image_url || "https://placehold.co/300x200?text=Producto"} 
+            alt={product.name} 
+            style={{width:'100%', height: '200px', objectFit: 'cover'}}
+        /> 
       </div>
       <div style={styles.info}>
         <span style={styles.category}>{product.category || 'General'}</span>
