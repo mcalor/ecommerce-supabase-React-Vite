@@ -7,20 +7,26 @@ export default function Navbar({ onLoginClick, user }) {
   return (
     <nav style={styles.nav}>
       <div style={styles.logoContainer}>
-        <h1 style={styles.logo}>MERCADO<span style={{color: '#f39c12'}}>TRAINEE</span></h1>
+        <h1 style={styles.logo}>NUTRICION <span style={{color: '#f39c12'}}> TOTAL </span></h1>
       </div>
       
       <div style={styles.links}>
-        <a href="#" style={styles.link}>Inicio</a>
-        <a href="#" style={styles.link}>Productos</a>
-        <a href="#" style={styles.link}>Nosotros</a>
+        <a href="#" style={styles.link}> Inicio</a>
+        <BR>
+        </BR>
+        <a href="#" style={styles.link}> Productos</a>
+        <BR>
+        </BR>
+        <a href="#" style={styles.link}> Nosotros</a>
+        <BR>
+        </BR>
       </div>
 
       <div style={styles.actions}>
         {user ? (
-          <span style={styles.user}>Hola, {user.email}</span>
+          <span style={styles.user}> Hola, {user.email}</span>
         ) : (
-          <button onClick={onLoginClick} style={styles.loginBtn}>Ingresar</button>
+          <button onClick={onLoginClick} style={styles.loginBtn}> Ingresar</button>
         )}
         
         <button onClick={() => setIsCartOpen(true)} style={styles.cartBtn}>
