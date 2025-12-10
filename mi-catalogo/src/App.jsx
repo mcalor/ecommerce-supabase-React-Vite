@@ -49,8 +49,8 @@ function App() {
           
           {/* Banner Hero Simple */}
           <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-            <h2 style={{ fontSize: '2.5rem', color: '#2c3e50' }}>Nutrición para tu Código</h2>
-            <p style={{ fontSize: '1.2rem', color: '#7f8c8d' }}>Suplementos de hardware y software para desarrolladores.</p>
+            <h2 style={{ fontSize: '2.5rem', color: '#2c3e50' }}>Nutrientes para tu Salud</h2>
+            <p style={{ fontSize: '1.2rem', color: '#7f8c8d' }}>Nutrirse nunca fue tan fácil.</p>
           </div>
 
           {/* Grid de Productos */}
