@@ -12,14 +12,11 @@ export default function Navbar({ onLoginClick, user }) {
       
       <div style={styles.links}>
         <a href="#" style={styles.link}> Inicio</a>
-        <BR>
-        </BR>
+            
         <a href="#" style={styles.link}> Productos</a>
-        <BR>
-        </BR>
+        
         <a href="#" style={styles.link}> Nosotros</a>
-        <BR>
-        </BR>
+       
       </div>
 
       <div style={styles.actions}>
