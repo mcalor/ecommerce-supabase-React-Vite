@@ -1,106 +1,69 @@
-import { useEffect, useState } from 'react'
-import { supabase } from './lib/supabaseClient'
-import './App.css'
+import { useEffect, useState } from 'react';
+import { supabase } from './lib/supabaseClient';
+import { CartProvider } from './context/CartContext';
+import Navbar from './components/Navbar';
+import ProductCard from './components/ProductCard';
+import CartDrawer from './components/CartDrawer';
+import './App.css'; // Asegúrate de tener estilos básicos de reset
 
 function App() {
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Cargar productos al inicio
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    fetchProducts();
+    checkUser();
+  }, []);
 
   async function fetchProducts() {
-    const { data, error } = await supabase.from('products').select('*')
-    if (error) console.error(error)
-    else setProducts(data)
-    setLoading(false)
+    // Ordenamos por ID para que no salten al actualizar
+    const { data } = await supabase.from('products').select('*').order('id');
+    setProducts(data || []);
+    setLoading(false);
   }
 
-  // --- LA LÓGICA DE COMPRA ACTUALIZADA ---
-  async function handleBuy(product) {
-    // 1. Verificar Login
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      alert("Por favor, inicia sesión para comprar (Botón arriba a la derecha)")
-      return
-    }
-
-    try {
-      // 2. Crear la orden en TU base de datos (Postgres)
-      // Esto asegura el stock y el precio real antes de ir a Mercado Pago
-      const { data: orderData, error: orderError } = await supabase.rpc('create_order', {
-        order_items_input: [{ product_id: product.id, quantity: 1 }] 
-      })
-
-      if (orderError) throw orderError
-      
-      console.log("Orden creada internamente ID:", orderData.order_id)
-
-      // 3. Llamar a tu Edge Function (La que acabas de desplegar)
-      // Esta función hablará con Mercado Pago usando tu token secreto
-      const { data: mpData, error: mpError } = await supabase.functions.invoke('create-mp-preference', {
-        body: {
-          orderId: orderData.order_id,
-          title: product.name,
-          price: product.price, // En un sistema real, la Edge Function debería buscar el precio de nuevo, pero para trainee está bien así
-          quantity: 1
-        }
-      })
-
-      if (mpError) throw mpError
-      if (mpData.error) throw new Error(mpData.error)
-
-      // 4. ¡MAGIA! Redirigir al usuario a Mercado Pago
-      // Usamos 'sandbox_init_point' para pruebas. Cuando salgas a producción usarás 'init_point'
-      console.log("Redirigiendo a Mercado Pago...", mpData.sandbox_init_point)
-      window.location.href = mpData.sandbox_init_point
-
-    } catch (error) {
-      console.error('Error en el proceso:', error)
-      alert('Hubo un error: ' + error.message)
-    }
+  async function checkUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
   }
 
-  // Login simple para pruebas
-  const handleLogin = async () => {
-    const email = prompt("Email de prueba:")
-    const password = prompt("Password:")
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) alert(error.message)
-    else alert("¡Logueado! Ahora intenta comprar.")
+  async function handleLogin() {
+    const email = prompt("Email de prueba:");
+    const password = prompt("Password:");
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error) window.location.reload();
+    else alert(error.message);
   }
 
-  if (loading) return <h1>Cargando tienda...</h1>
+  if (loading) return <div>Cargando experiencia...</div>;
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-        <h1>Mercado Trainee 🛒</h1>
-        <button onClick={handleLogin}>Iniciar Sesión (Test)</button>
-      </header>
-      
-      <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
-        {products.map((product) => (
-          <div key={product.id} style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '8px' }}>
-            <h3>{product.name}</h3>
-            <p style={{ color: '#666' }}>{product.description}</p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-              <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>${product.price}</span>
-              <button 
-                // Pasamos el objeto producto completo a la función
-                onClick={() => handleBuy(product)}
-                style={{ backgroundColor: '#009ee3', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
-              >
-                Pagar con Mercado Pago
-              </button>
-            </div>
+    <CartProvider>
+      <div style={{ backgroundColor: '#f4f6f8', minHeight: '100vh', fontFamily: "'Segoe UI', sans-serif" }}>
+        <Navbar onLoginClick={handleLogin} user={user} />
+        
+        <CartDrawer user={user} />
+
+        <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
+          
+          {/* Banner Hero Simple */}
+          <div style={{ textAlign: 'center', marginBottom: '50px' }}>
+            <h2 style={{ fontSize: '2.5rem', color: '#2c3e50' }}>Nutrición para tu Código</h2>
+            <p style={{ fontSize: '1.2rem', color: '#7f8c8d' }}>Suplementos de hardware y software para desarrolladores.</p>
           </div>
-        ))}
+
+          {/* Grid de Productos */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+
+        </main>
       </div>
-    </div>
-  )
+    </CartProvider>
+  );
 }
 
-export default App
+export default App;
